@@ -10,33 +10,32 @@ IMAGE_SHOWN = False
 # this handler runs once per connection
 async def handler(ws):
     CONNECTED.add(ws)
-    print("client connected.")
+
     try:
-        async for _ in ws:
-            pass
+        # while this connection is open:
+        # listen for message
+        async for message in ws:
+            global IMAGE_SHOWN
+            print("Received:", message)
+
+            # all were doing here is on our user clicking the change image button on the frontend
+            # we recieve a message, check the current image_state, set it to the opposite
+            # and send back the current state for changing on the front
+            if message == "Monke Clicked":
+                print(IMAGE_SHOWN)
+                if IMAGE_SHOWN == False:
+                    IMAGE_SHOWN = True
+                    await ws.send(json.dumps({"type": "state", "image_shown": IMAGE_SHOWN}))
+                else:
+                    IMAGE_SHOWN = False
+                    await ws.send(json.dumps({"type": "state", "image_shown": IMAGE_SHOWN}))
+
+            # on loading our html page, send back current image state
+            if message == "IMAGE_STATE":
+                await ws.send(json.dumps({"type": "state", "image_shown": IMAGE_SHOWN}))
+
     finally:
         CONNECTED.remove(ws)
-
-    # while this connection is open:
-    # listen for message
-    async for message in ws:
-        global IMAGE_SHOWN
-        print("Received:", message)
-
-        # all were doing here is on our user clicking the change image button on the frontend
-        # we recieve a message, check the current image_state, set it to the opposite
-        # and send back the current state for changing on the front
-        if message == "Monke Clicked":
-            if IMAGE_SHOWN == False:
-                IMAGE_SHOWN = True
-                await ws.send(json.dumps({"type": "state", "image_shown": IMAGE_SHOWN}))
-            else:
-                IMAGE_SHOWN = False
-                await ws.send(json.dumps({"type": "state", "image_shown": IMAGE_SHOWN}))
-
-        # on loading our html page, send back current image state
-        if message == "IMAGE_STATE":
-            await ws.send(json.dumps({"type": "state", "image_shown": IMAGE_SHOWN}))
 
 # sends a message to all clients connected
 async def broadcast(message):

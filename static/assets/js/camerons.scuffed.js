@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (message.type === "state") {
             document.getElementById("bg").classList.toggle("active");
+            console.log("updating image")
         }
     });
 });
