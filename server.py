@@ -6,6 +6,7 @@ from websockets.exceptions import ConnectionClosed
 CONNECTED = set()
 IMAGE_STATE = False
 
+
 # ws = the private, live connection between the server and ONE client (one browser tab)
 # this handler runs once per connection
 async def handler(ws):
@@ -24,17 +25,13 @@ async def handler(ws):
 
             # only thing missing now is sending the broadcast to everyone on click
             if message == "IMAGE_STATE":
-                if IMAGE_STATE == False:
-                    IMAGE_STATE = True
-                    await broadcast(json.dumps({"type": "state", "image_state": IMAGE_STATE}))
-                    print(IMAGE_STATE)
-                else:
-                    IMAGE_STATE = False
-                    await broadcast(json.dumps({"type": "state", "image_state": IMAGE_STATE}))
-                    print(IMAGE_STATE)
+                IMAGE_STATE = not IMAGE_STATE  # flip it to the opposite bool
+                await broadcast(json.dumps({"type": "state", "image_state": IMAGE_STATE}))
+                print(IMAGE_STATE)
 
     finally:
         CONNECTED.remove(ws)
+
 
 # sends a message to all clients connected
 async def broadcast(message):
@@ -43,6 +40,7 @@ async def broadcast(message):
             await ws.send(message)
         except ConnectionClosed:
             pass
+
 
 async def main():
     # This is the "start listening" part.
@@ -56,6 +54,7 @@ async def main():
         # Keep the server running forever.
         # (Otherwise main() would end immediately and the server would shut down.)
         await asyncio.Future()
+
 
 if __name__ == "__main__":
     # This starts asyncio's event loop and runs main().
