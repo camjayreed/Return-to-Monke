@@ -6,39 +6,28 @@ document.addEventListener("DOMContentLoaded", () => {
   ws = new WebSocket("ws://localhost:8765");
 
     // on load send message to websocket, to check IMAGE_STATE state
-    setTimeout(() => {
-        ws.send("CHECK_IMAGE");}, 1000);
+    ws.onopen = () => { ws.send("CHECK_IMAGE"); };
 
     // What to do when getting a message from the server
     ws.addEventListener("message", (event) => {
         const message = JSON.parse(event.data);
 
-        // initial image check
-        if (message.check_image === false) {
-            // set bg image and make the server turn IMAGE_STATE to true
-            document.getElementById("bg").classList.toggle("active");
-            console.log("Shared Image State: True")
-        } else if (message.check_image === true) {
-            // set bg image to original state
-            document.getElementById("bg").classList.remove("active");
-            console.log("Shared Image State: False")
-            }
+        // if our message has to do with current image states, run our function
+        if (message.type === "state") {
+            check_state()
+        }
 
-        // on clicking witness button
-        if (message.image_state === false) {
-            // set bg image and make the server turn IMAGE_STATE to true
-            document.getElementById("bg").classList.toggle("active");
-            console.log("Shared Image State: True")
-        } else if (message.image_state === true) {
-            // set bg image to original state
-            document.getElementById("bg").classList.remove("active");
-            console.log("Shared Image State: False")
+        function check_state() {
+            if (message.image_state === false) {
+                // set bg image and make the server turn IMAGE_STATE to true
+                document.getElementById("bg").classList.toggle("active", !message.image_state);
+                console.log("Shared Image State: True")
+            } else if (message.image_state === true) {
+                // set bg image to original state
+                document.getElementById("bg").classList.toggle("active", !message.image_state);
+                console.log("Shared Image State: False")
             }
-
-        // now we need a if statement that checks message.IMAGE_STATE value
-        // if true, document.getElementById("bg").classList.remove("active");
-        // if false, document.getElementById("bg").classList.toggle("active");
-        // true == deafult bg, false == new bg
+        }
     });
 });
 

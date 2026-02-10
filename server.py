@@ -20,7 +20,7 @@ async def handler(ws):
             print("Received:", message)
 
             if message == "CHECK_IMAGE":
-                await ws.send(json.dumps({"type": "state", "check_image": IMAGE_STATE}))
+                await ws.send(json.dumps({"type": "state", "image_state": IMAGE_STATE}))
 
             # only thing missing now is sending the broadcast to everyone on click
             if message == "IMAGE_STATE":
