@@ -5,18 +5,40 @@ let ws; // global ws to be set on load, so its accessible everywhere
 document.addEventListener("DOMContentLoaded", () => {
   ws = new WebSocket("ws://localhost:8765");
 
-    // on load send message to websocket, to check IMAGE_SHOWN state
+    // on load send message to websocket, to check IMAGE_STATE state
     setTimeout(() => {
-        ws.send("IMAGE_STATE");}, 1000);
+        ws.send("CHECK_IMAGE");}, 1000);
 
     // What to do when getting a message from the server
     ws.addEventListener("message", (event) => {
         const message = JSON.parse(event.data);
 
-        if (message.type === "state") {
+        // initial image check
+        if (message.check_image === false) {
+            // set bg image and make the server turn IMAGE_STATE to true
             document.getElementById("bg").classList.toggle("active");
-            console.log("updating image")
-        }
+            console.log("Shared Image State: True")
+        } else if (message.check_image === true) {
+            // set bg image to original state
+            document.getElementById("bg").classList.remove("active");
+            console.log("Shared Image State: False")
+            }
+
+        // on clicking witness button
+        if (message.image_state === false) {
+            // set bg image and make the server turn IMAGE_STATE to true
+            document.getElementById("bg").classList.toggle("active");
+            console.log("Shared Image State: True")
+        } else if (message.image_state === true) {
+            // set bg image to original state
+            document.getElementById("bg").classList.remove("active");
+            console.log("Shared Image State: False")
+            }
+
+        // now we need a if statement that checks message.IMAGE_STATE value
+        // if true, document.getElementById("bg").classList.remove("active");
+        // if false, document.getElementById("bg").classList.toggle("active");
+        // true == deafult bg, false == new bg
     });
 });
 
@@ -24,5 +46,5 @@ document.addEventListener("DOMContentLoaded", () => {
 document.getElementById("li-witness").addEventListener("click", witness);
 function witness() {
     // send message to backend telling it our image changed
-    ws.send("Monke Clicked");
+    ws.send("IMAGE_STATE");
 }

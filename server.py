@@ -4,35 +4,34 @@ import json
 from websockets.exceptions import ConnectionClosed
 
 CONNECTED = set()
-IMAGE_SHOWN = False
+IMAGE_STATE = False
 
 # ws = the private, live connection between the server and ONE client (one browser tab)
 # this handler runs once per connection
 async def handler(ws):
     CONNECTED.add(ws)
+    print(f"Client Connected: {ws}")
 
     try:
         # while this connection is open:
         # listen for message
         async for message in ws:
-            global IMAGE_SHOWN
+            global IMAGE_STATE
             print("Received:", message)
 
-            # all were doing here is on our user clicking the change image button on the frontend
-            # we recieve a message, check the current image_state, set it to the opposite
-            # and send back the current state for changing on the front
-            if message == "Monke Clicked":
-                print(IMAGE_SHOWN)
-                if IMAGE_SHOWN == False:
-                    IMAGE_SHOWN = True
-                    await ws.send(json.dumps({"type": "state", "image_shown": IMAGE_SHOWN}))
-                else:
-                    IMAGE_SHOWN = False
-                    await ws.send(json.dumps({"type": "state", "image_shown": IMAGE_SHOWN}))
+            if message == "CHECK_IMAGE":
+                await ws.send(json.dumps({"type": "state", "check_image": IMAGE_STATE}))
 
-            # on loading our html page, send back current image state
+            # only thing missing now is sending the broadcast to everyone on click
             if message == "IMAGE_STATE":
-                await ws.send(json.dumps({"type": "state", "image_shown": IMAGE_SHOWN}))
+                if IMAGE_STATE == False:
+                    IMAGE_STATE = True
+                    await broadcast(json.dumps({"type": "state", "image_state": IMAGE_STATE}))
+                    print(IMAGE_STATE)
+                else:
+                    IMAGE_STATE = False
+                    await broadcast(json.dumps({"type": "state", "image_state": IMAGE_STATE}))
+                    print(IMAGE_STATE)
 
     finally:
         CONNECTED.remove(ws)
