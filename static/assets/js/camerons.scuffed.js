@@ -21,7 +21,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function check_state() {
-      document.getElementById("bg").classList.toggle("active", !message.image_state);
+      document
+        .getElementById("bg")
+        .classList.toggle("active", !message.image_state);
       console.log("Shared Image State:", message.image_state);
     }
   });
@@ -36,55 +38,66 @@ function witness() {
 
 //// MONKEY CHAT ////
 
-// just a function that takes the id of an input field
-// and allows you to press enter from within the input field to submit instead of having to tie a submit button to it
-function submit_on_enter(input_id) {
+//////  Chatrooms  //////
+// what to do upon opening chat 1
+document.getElementById("chat1_btn").addEventListener("click", openChat1);
+function openChat1() {
+  // setup divs
+  // hide chat 2
+  document.getElementById("chat2_div").setAttribute("hidden", "");
+  // show chat 1
+  document.getElementById("chat1_div").removeAttribute("hidden");
+
+  // send the div of the chat were typing in along with the users text to our function that handles submitting text
+  let chat1_box = document.getElementById("chat1_div");
+  submitOnEnter("chat1_txt", "chat1_div");
+}
+
+// what to do upon opening chat 2
+document.getElementById("chat2_btn").addEventListener("click", openChat2);
+function openChat2() {
+  // setup divs
+  // hide chat 1
+  document.getElementById("chat1_div").setAttribute("hidden", "");
+  // show chat 2
+  document.getElementById("chat2_div").removeAttribute("hidden");
+
+  // send the div of the chat were typing in along with the users text to our function that handles submitting text
+  let chat1_box = document.getElementById("chat2_div");
+  submitOnEnter("chat2_txt", "chat2_div");
+}
+
+//////  Sending Text To Users  //////
+// just a function that takes the id of an input field for the chatroom were in, and the div our our current rooms chatbox
+// allows you to press enter from within the input field to submit instead of having to tie a submit button to it
+function submitOnEnter(input_id, div) {
   var input = document.getElementById(`${input_id}`);
 
   // Execute a function when the user presses a key on the keyboard
-  input.addEventListener("keypress", function(event) {
+  input.addEventListener("keypress", function (event) {
     // If the user presses the "Enter" key on the keyboard
     if (event.key === "Enter") {
       // Cancel the default action, if needed
       event.preventDefault();
       // Trigger the button element with a click
 
-      const input_text = input.value
-      test_func(input_text)
+      // so here is when we press enter and do things with the info in the input box
+      // we need to send a message to the websocket server and have it dynamically display this for everyone using the appendText function
+      const input_text = input.value;
+      appendText(input_text, div);
     }
   });
 }
 
 // send the users inputted text to our chatroom
-function test_func(text) {
-  console.log("submit_chat:", text)
-}
+function appendText(text, div) {
+  // create a p tag to put text in
+  let chatbox = document.getElementById(div);
+  let textline = document.createElement("p");
+  textline.className = "chat-message";
+  textline.innerText = text;
+  // so this is creating a p tag but the p tag holds nothing currently
 
-// what to do upon opening chat 1
-document.getElementById("chat1_btn").addEventListener("click", chat1)
-function chat1() {
-  // setup divs
-    let chat1_box = document.getElementById("chat1_div")
-    let chat1_usertxt = document.createElement("p")
-    // hide chat 2
-    document.getElementById("chat2_div").setAttribute("hidden", "")
-    // show chat 1
-    document.getElementById("chat1_div").removeAttribute("hidden")
-
-  // setup chat input
-    submit_on_enter("chat1_txt")
-}
-
-// what to do upon opening chat 2
-document.getElementById("chat2_btn").addEventListener("click", chat2)
-function chat2() {
-
-  // setup divs
-    // hide chat 1
-    document.getElementById("chat1_div").setAttribute("hidden", "")
-    // show chat 2
-    document.getElementById("chat2_div").removeAttribute("hidden")
-
-    // setup chat input
-      submit_on_enter("chat2_txt")
+  // append p tag to our chatbox div
+  chatbox.append(textline);
 }

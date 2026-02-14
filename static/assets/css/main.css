@@ -1679,3 +1679,13 @@ input, select, textarea {
 		body.is-preload #footer {
 			opacity: 0;
 		}
+
+.chat-message {
+    margin: 0.1rem 0 !important;
+    padding: 0;
+    line-height: 1.3;
+}
+
+button[hidden], div[hidden] {
+    display: none !important;
+}
