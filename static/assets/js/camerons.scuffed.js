@@ -1,6 +1,6 @@
 let ws; // global ws to be set on load, so its accessible everywhere
 
-//// INITIAL WEBSOCKET SETUP ////
+//// WEBSOCKET SETUP AND LISTENERS ////
 
 // create our websocket connection on page loading
 document.addEventListener("DOMContentLoaded", () => {
@@ -14,6 +14,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // What to do when getting a message from the server
   ws.addEventListener("message", (event) => {
     const message = JSON.parse(event.data);
+
+    if (message.type === "chat") {
+      appendText(message.message, message.room);
+    }
 
     // if our message has to do with current image states, run our function
     if (message.type === "state") {
@@ -81,23 +85,26 @@ function submitOnEnter(input_id, div) {
       event.preventDefault();
       // Trigger the button element with a click
 
-      // so here is when we press enter and do things with the info in the input box
-      // we need to send a message to the websocket server and have it dynamically display this for everyone using the appendText function
+      // here were packaging the data needed for displaying our messages to all users
       const input_text = input.value;
-      appendText(input_text, div);
+
+      let data = {
+        type: "chat",
+        message: input_text,
+        room: div,
+      };
+
+      // then here were sending it off to our websocket for processing
+      ws.send(JSON.stringify(data));
     }
   });
 }
 
 // send the users inputted text to our chatroom
-function appendText(text, div) {
-  // create a p tag to put text in
-  let chatbox = document.getElementById(div);
+function appendText(message, room) {
+  let chatbox = document.getElementById(room);
   let textline = document.createElement("p");
   textline.className = "chat-message";
-  textline.innerText = text;
-  // so this is creating a p tag but the p tag holds nothing currently
-
-  // append p tag to our chatbox div
+  textline.innerText = message;
   chatbox.append(textline);
 }
