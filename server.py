@@ -26,7 +26,7 @@ async def handler(ws):
                 msg_type = data.get("type")
 
                 if msg_type == "chat":
-                    # recieve the data
+                    # receive the data
                     room = data.get("room")
                     message = data.get("message")
 
